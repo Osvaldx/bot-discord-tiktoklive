@@ -20,10 +20,13 @@ intents.voice_states = True
 voice_client = None # establecemos en none para que cuando se conecte a un voice se cambie solo
 audio_queue = asyncio.Queue()
 alerta_follow = False
+alerta_donacion = False
 
 async def reproducir_comentarios():
     global voice_client # usamos la variable global
     global alerta_follow
+    global alerta_donacion
+
     while(True): # un bucle para poder reproducir todos los comentarios
         texto = await audio_queue.get() # sacamos el texto de la cola
         if(voice_client and not voice_client.is_playing()): # validacion para saber que tengamos el voice activo y no este leyendo comentarios
@@ -45,6 +48,15 @@ async def reproducir_comentarios():
                     await asyncio.sleep(1)
                 
                 alerta_follow = False
+            
+            if(alerta_donacion):
+                audio_alerta = FFmpegPCMAudio("sounds/goku-eta-vaina-e-seria.mp3")
+                voice_client.play(audio_alerta)
+                
+                while(voice_client.is_playing()): # si se esta reproduciendo agregamos un delay
+                    await asyncio.sleep(1)
+                
+                alerta_donacion = False
 
 @cliente.on(ConnectEvent)
 async def conectar_live(event: ConnectEvent)-> None:
@@ -52,7 +64,7 @@ async def conectar_live(event: ConnectEvent)-> None:
 
 @cliente.on(CommentEvent)
 async def leer_comentarios(event: CommentEvent)-> None:
-    print(Fore.LIGHTYELLOW_EX + f"[comentario] @{event.user.nickname} ha dicho: {event.comment}" + Style.RESET_ALL)
+    print(Fore.LIGHTYELLOW_EX + f"[Comentario] @{event.user.nickname} ha dicho: {event.comment}" + Style.RESET_ALL)
     comentario = event.comment
     mensaje = f"{event.user.nickname} ha dicho {comentario}"
     if(await mensaje_spam_validacion(comentario)):
@@ -62,14 +74,27 @@ async def leer_comentarios(event: CommentEvent)-> None:
 @cliente.on(FollowEvent)
 async def aviso_seguidor(event: FollowEvent):
     global alerta_follow
-    mensaje = Fore.LIGHTMAGENTA_EX + f"[+1 Follow] @{event.user.nickname} nos ha empezado a seguir"
+    mensaje = Fore.LIGHTCYAN_EX + f"[Follow] @{event.user.nickname} nos ha empezado a seguir"
     print(mensaje)
     alerta_follow = True
     await audio_queue.put(mensaje)
 
 @cliente.on(GiftEvent)
 async def aviso_donacion(event: GiftEvent):
-    pass
+    global alerta_donacion
+    nombre_usuario = event.user.nickname if event.user.nickname else event.user.unique_id
+    nombre_regalo = event.gift.name if event.gift.name else "un regalo"
+
+    if(event.gift.streakable and not event.streaking):
+        cantidad = event.repeat_count if event.repeat_count else 1
+        print(Fore.LIGHTMAGENTA_EX + f"[$] {nombre_usuario} ha donado {cantidad} {nombre_regalo}")
+        mensaje = f"{nombre_usuario} ha donado {cantidad} {nombre_regalo}"
+    elif(not event.gift.streakable):
+        print(Fore.LIGHTMAGENTA_EX + f"[$] {nombre_usuario} ha donado {nombre_regalo}")
+        mensaje = f"{nombre_usuario} ha donado un {nombre_regalo}"
+    
+    alerta_donacion = True
+    await audio_queue.put(mensaje)
 
 # prefijos del bot
 bot = commands.Bot(command_prefix="$",intents=intents)
