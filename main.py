@@ -4,12 +4,12 @@ from discord.ext import commands
 from discord import FFmpegPCMAudio
 from colorama import Fore,Style
 from TikTokLive import TikTokLiveClient
-from TikTokLive.events import ConnectEvent,CommentEvent
+from TikTokLive.events import ConnectEvent,CommentEvent,FollowEvent,GiftEvent
 import asyncio
 from gtts import gTTS
 from packages.functions import mensaje_spam_validacion
 
-cliente = TikTokLiveClient(unique_id="@etypopular")
+cliente = TikTokLiveClient(unique_id="@octa_cbs")
 
 intents = discord.Intents.default()
 # permisos para que el bot puedae saber sobre miembros,mensajes y manejar canales
@@ -19,9 +19,11 @@ intents.voice_states = True
 
 voice_client = None # establecemos en none para que cuando se conecte a un voice se cambie solo
 audio_queue = asyncio.Queue()
+alerta_follow = False
 
 async def reproducir_comentarios():
     global voice_client # usamos la variable global
+    global alerta_follow
     while(True): # un bucle para poder reproducir todos los comentarios
         texto = await audio_queue.get() # sacamos el texto de la cola
         if(voice_client and not voice_client.is_playing()): # validacion para saber que tengamos el voice activo y no este leyendo comentarios
@@ -31,8 +33,18 @@ async def reproducir_comentarios():
             # reproducimos el audio
             audio = FFmpegPCMAudio("sounds/mensaje.mp3")
             voice_client.play(audio)
+
             while(voice_client.is_playing()): # si se esta reproduciendo agregamos un delay
                 await asyncio.sleep(1)
+            
+            if(alerta_follow):
+                audio_alerta = FFmpegPCMAudio("sounds/oye-gela.mp3")
+                voice_client.play(audio_alerta)
+
+                while(voice_client.is_playing()): # si se esta reproduciendo agregamos un delay
+                    await asyncio.sleep(1)
+                
+                alerta_follow = False
 
 @cliente.on(ConnectEvent)
 async def conectar_live(event: ConnectEvent)-> None:
@@ -40,12 +52,24 @@ async def conectar_live(event: ConnectEvent)-> None:
 
 @cliente.on(CommentEvent)
 async def leer_comentarios(event: CommentEvent)-> None:
-    print(Fore.LIGHTYELLOW_EX + f"@{event.user.nickname} ha dicho: {event.comment}" + Style.RESET_ALL)
+    print(Fore.LIGHTYELLOW_EX + f"[comentario] @{event.user.nickname} ha dicho: {event.comment}" + Style.RESET_ALL)
     comentario = event.comment
     mensaje = f"{event.user.nickname} ha dicho {comentario}"
     if(await mensaje_spam_validacion(comentario)):
         mensaje = f"{event.user.nickname} ha intentando mandar un mensaje SPAM"
     await audio_queue.put(mensaje)
+
+@cliente.on(FollowEvent)
+async def aviso_seguidor(event: FollowEvent):
+    global alerta_follow
+    mensaje = Fore.LIGHTMAGENTA_EX + f"[+1 Follow] @{event.user.nickname} nos ha empezado a seguir"
+    print(mensaje)
+    alerta_follow = True
+    await audio_queue.put(mensaje)
+
+@cliente.on(GiftEvent)
+async def aviso_donacion(event: GiftEvent):
+    pass
 
 # prefijos del bot
 bot = commands.Bot(command_prefix="$",intents=intents)
