@@ -74,8 +74,8 @@ async def leer_comentarios(event: CommentEvent)-> None:
 @cliente.on(FollowEvent)
 async def aviso_seguidor(event: FollowEvent):
     global alerta_follow
-    mensaje = Fore.LIGHTCYAN_EX + f"[Follow] @{event.user.nickname} nos ha empezado a seguir"
-    print(mensaje)
+    mensaje = f"@{event.user.nickname} nos ha empezado a seguir"
+    print(Fore.LIGHTCYAN_EX + f"[Follow] @{event.user.nickname} nos ha empezado a seguir" + Style.RESET_ALL)
     alerta_follow = True
     await audio_queue.put(mensaje)
 
