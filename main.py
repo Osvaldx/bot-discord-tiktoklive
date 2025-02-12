@@ -1,15 +1,15 @@
 import discord
+import asyncio
 from token_bot import TOKEN_BOT
 from discord.ext import commands
 from discord import FFmpegPCMAudio
 from colorama import Fore,Style
 from TikTokLive import TikTokLiveClient
 from TikTokLive.events import ConnectEvent,CommentEvent,FollowEvent,GiftEvent
-import asyncio
 from gtts import gTTS
 from packages.functions import mensaje_spam_validacion
 
-cliente = TikTokLiveClient(unique_id="@octa_cbs")
+cliente = TikTokLiveClient(unique_id="@elfokinronz")
 
 intents = discord.Intents.default()
 # permisos para que el bot puedae saber sobre miembros,mensajes y manejar canales
