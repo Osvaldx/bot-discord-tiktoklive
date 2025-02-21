@@ -84,6 +84,7 @@ async def aviso_donacion(event: GiftEvent):
     global alerta_donacion
     nombre_usuario = event.user.nickname if event.user.nickname else event.user.unique_id
     nombre_regalo = event.gift.name if event.gift.name else "un regalo"
+    mensaje = ""
 
     if(event.gift.streakable and not event.streaking):
         cantidad = event.repeat_count if event.repeat_count else 1
