@@ -7,7 +7,7 @@ from colorama import Fore,Style
 from TikTokLive import TikTokLiveClient
 from TikTokLive.events import ConnectEvent,CommentEvent,FollowEvent,GiftEvent
 from gtts import gTTS
-from packages.functions import mensaje_spam_validacion
+from packages.functions import *
 
 cliente = TikTokLiveClient(unique_id="@elfokinronz")
 
@@ -75,9 +75,13 @@ async def leer_comentarios(event: CommentEvent)-> None:
 async def aviso_seguidor(event: FollowEvent):
     global alerta_follow
     mensaje = f"@{event.user.nickname} nos ha empezado a seguir"
-    print(Fore.LIGHTCYAN_EX + f"[Follow] @{event.user.nickname} nos ha empezado a seguir" + Style.RESET_ALL)
-    alerta_follow = True
-    await audio_queue.put(mensaje)
+
+    respuesta = await agregar_seguidor(event.user.nickname)
+    if(respuesta != event.user.nickname):
+        print(Fore.LIGHTGREEN_EX + f"[+] {event.user.nickname} SE AGREGO A LA LISTA DE SEGUIDORES" if respuesta else  Fore.LIGHTRED_EX + f"[-] {event.user.nickname} HUBO UN ERROR AL AGREGARLO A LA LISTA")
+        print(Fore.LIGHTCYAN_EX + f"[Follow] @{event.user.nickname} nos ha empezado a seguir" + Style.RESET_ALL)
+        alerta_follow = True
+        await audio_queue.put(mensaje)
 
 @cliente.on(GiftEvent)
 async def aviso_donacion(event: GiftEvent):
@@ -128,7 +132,8 @@ async def leave(ctx):
 async def main():
     await asyncio.gather(
         bot.start(TOKEN_BOT),  # Inicia el bot de Discord
-        cliente.start()        # Inicia el cliente de TikTok Live
+        cliente.start(),        # Inicia el cliente de TikTok Live
+        reiniciar_lista()
     )
 
 # Correr ambos bot
