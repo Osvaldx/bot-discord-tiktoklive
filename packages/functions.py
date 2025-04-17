@@ -27,7 +27,7 @@ async def mensaje_spam_validacion(mensaje: str)-> bool:
 async def agregar_seguidor(nombre: str)->bool | str:
     retorno = True
     try:
-        with open("jsons\seguidos_dia.json", "r", encoding="utf-8") as archivo:
+        with open("/root/tiktoklive/jsons/seguidos_dia.json", "r", encoding="utf-8") as archivo:
             try:
                 datos = json.load(archivo)
                 if(datos.get(nombre)):
@@ -35,7 +35,7 @@ async def agregar_seguidor(nombre: str)->bool | str:
             except:
                 datos = {}
         
-        with open("jsons\seguidos_dia.json", "w", encoding="utf-8") as archivo:
+        with open("/root/tiktoklive/jsons/seguidos_dia.json", "w", encoding="utf-8") as archivo:
             datos[nombre] = True
             json.dump(datos, archivo, indent=4)
     except:
@@ -44,5 +44,5 @@ async def agregar_seguidor(nombre: str)->bool | str:
     return retorno
 
 async def reiniciar_lista():
-    with open("jsons\seguidos_dia.json", "w", encoding="utf-8") as archivo:
+    with open("/root/tiktoklive/jsons/seguidos_dia.json", "w", encoding="utf-8") as archivo:
         json.dump({},archivo)
