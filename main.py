@@ -5,7 +5,7 @@ from discord.ext import commands
 from discord import FFmpegPCMAudio
 from colorama import Fore,Style
 from TikTokLive import TikTokLiveClient
-from TikTokLive.events import ConnectEvent,CommentEvent,FollowEvent,GiftEvent
+from TikTokLive.events import ConnectEvent,FollowEvent,GiftEvent,CommentEvent
 from gtts import gTTS
 from packages.functions import *
 
@@ -64,11 +64,11 @@ async def conectar_live(event: ConnectEvent)-> None:
 
 @cliente.on(CommentEvent)
 async def leer_comentarios(event: CommentEvent)-> None:
-    print(Fore.LIGHTYELLOW_EX + f"[Comentario] @{event.user.nickname} ha dicho: {event.comment}" + Style.RESET_ALL)
+    print(Fore.LIGHTYELLOW_EX + f"[Comentario] @{event.user_info.username} ha dicho: {event.comment}" + Style.RESET_ALL)
     comentario = event.comment
-    mensaje = f"{event.user.nickname} ha dicho {comentario}"
+    mensaje = f"{event.user_info.username} ha dicho {comentario}"
     if(await mensaje_spam_validacion(comentario)):
-        mensaje = f"{event.user.nickname} ha intentando mandar un mensaje SPAM"
+        mensaje = f"{event.user_info.username} ha intentando mandar un mensaje SPAM"
     await audio_queue.put(mensaje)
 
 @cliente.on(FollowEvent)
@@ -86,7 +86,7 @@ async def aviso_seguidor(event: FollowEvent):
 @cliente.on(GiftEvent)
 async def aviso_donacion(event: GiftEvent):
     global alerta_donacion
-    nombre_usuario = event.user.nickname if event.user.nickname else event.user.unique_id
+    nombre_usuario = event.user.nickname if event.user.nickname else event.user.nickname
     nombre_regalo = event.gift.name if event.gift.name else "un regalo"
     mensaje = ""
 
