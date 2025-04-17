@@ -32,16 +32,16 @@ async def reproducir_comentarios():
         if(voice_client and not voice_client.is_playing()): # validacion para saber que tengamos el voice activo y no este leyendo comentarios
             # generamos el mp3
             mensaje = gTTS(texto.lower(), lang="es")
-            mensaje.save("sounds/mensaje.mp3")
+            mensaje.save("/root/tiktoklive/sounds/mensaje.mp3")
             # reproducimos el audio
-            audio = FFmpegPCMAudio("sounds/mensaje.mp3")
+            audio = FFmpegPCMAudio("/root/tiktoklive/sounds/mensaje.mp3")
             voice_client.play(audio)
 
             while(voice_client.is_playing()): # si se esta reproduciendo agregamos un delay
                 await asyncio.sleep(1)
             
             if(alerta_follow):
-                audio_alerta = FFmpegPCMAudio("sounds/oye-gela.mp3")
+                audio_alerta = FFmpegPCMAudio("/root/tiktoklive/sounds/oye-gela.mp3")
                 voice_client.play(audio_alerta)
 
                 while(voice_client.is_playing()): # si se esta reproduciendo agregamos un delay
@@ -50,7 +50,7 @@ async def reproducir_comentarios():
                 alerta_follow = False
             
             if(alerta_donacion):
-                audio_alerta = FFmpegPCMAudio("sounds/goku-eta-vaina-e-seria.mp3")
+                audio_alerta = FFmpegPCMAudio("/root/tiktoklive/sounds/goku-eta-vaina-e-seria.mp3")
                 voice_client.play(audio_alerta)
                 
                 while(voice_client.is_playing()): # si se esta reproduciendo agregamos un delay
