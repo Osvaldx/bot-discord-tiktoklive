@@ -74,19 +74,19 @@ async def leer_comentarios(event: CommentEvent)-> None:
 @cliente.on(FollowEvent)
 async def aviso_seguidor(event: FollowEvent):
     global alerta_follow
-    mensaje = f"@{event.user.nickname} nos ha empezado a seguir"
+    mensaje = f"@{event.user_info.username} nos ha empezado a seguir"
 
-    respuesta = await agregar_seguidor(event.user.nickname)
-    if(respuesta != event.user.nickname):
-        print(Fore.LIGHTGREEN_EX + f"[+] {event.user.nickname} SE AGREGO A LA LISTA DE SEGUIDORES" if respuesta else  Fore.LIGHTRED_EX + f"[-] {event.user.nickname} HUBO UN ERROR AL AGREGARLO A LA LISTA")
-        print(Fore.LIGHTCYAN_EX + f"[Follow] @{event.user.nickname} nos ha empezado a seguir" + Style.RESET_ALL)
+    respuesta = await agregar_seguidor(event.user_info.username)
+    if(respuesta != event.user_info.username):
+        print(Fore.LIGHTGREEN_EX + f"[+] {event.user_info.username} SE AGREGO A LA LISTA DE SEGUIDORES" if respuesta else  Fore.LIGHTRED_EX + f"[-] {event.user_info.username} HUBO UN ERROR AL AGREGARLO A LA LISTA")
+        print(Fore.LIGHTCYAN_EX + f"[Follow] @{event.user_info.username} nos ha empezado a seguir" + Style.RESET_ALL)
         alerta_follow = True
         await audio_queue.put(mensaje)
 
 @cliente.on(GiftEvent)
 async def aviso_donacion(event: GiftEvent):
     global alerta_donacion
-    nombre_usuario = event.user.nickname if event.user.nickname else event.user.nickname
+    nombre_usuario = event.user_info.username if event.user_info.username else event.user_info.username
     nombre_regalo = event.gift.name if event.gift.name else "un regalo"
     mensaje = ""
 
